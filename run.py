@@ -48,21 +48,21 @@ def preprocess(file_path):
     """
 
     # preprocess read raw text
-    # text = read_data(FILE_PATH, type='zip')
-    # logging.info("read raw data")
+    text = read_data(FILE_PATH, type='zip')
+    logging.info("read raw data")
 
     # init base model
-    # tokenizer = SpacyTokenizer(LANG)
+    tokenizer = SpacyTokenizer(LANG)
     dictionary = Dictionary()
 
     # build corpus
-    # doc = tokenizer.tokenize(text)
-    # logging.info("after generate tokens from text")
+    doc = tokenizer.tokenize(text)
+    logging.info("after generate tokens from text")
 
     # save doc
-    # with open(DOC_PATH, mode='wb') as fp:
-    #     pickle.dump(doc, fp)
-    # logging.info("tokenized documents saved!")
+    with open(DOC_PATH, mode='wb') as fp:
+        pickle.dump(doc, fp)
+    logging.info("tokenized documents saved!")
     # load doc
     with open(DOC_PATH, 'rb') as fp:
         doc = pickle.load(fp)
