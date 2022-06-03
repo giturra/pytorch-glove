@@ -5,6 +5,10 @@ import torch
 from glove import GloVeModel
 from tools import SpacyTokenizer, Dictionary
 
+from web.datasets.analogy import fetch_google_analogy
+from web.evaluate import evaluate_analogy
+from web.embedding import Embedding
+
 logging.basicConfig(
     format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -99,6 +103,75 @@ def train_glove_model():
 
     # save model for evaluation
     torch.save(model.state_dict(), MODLE_PATH)
+
+
+def train_glove_model2():
+
+    # begin preprocess
+
+    # preprocess read raw text
+    text = read_data(FILE_PATH, type='zip')
+    logging.info("read raw data")
+
+    # init base model
+    tokenizer = SpacyTokenizer(LANG)
+    dictionary = Dictionary()
+
+    # build corpus
+    doc = tokenizer.tokenize(text)
+    logging.info("after generate tokens from text")
+
+    # save doc
+    with open(DOC_PATH, mode='wb') as fp:
+        pickle.dump(doc, fp)
+    logging.info("tokenized documents saved!")
+    # load doc
+    with open(DOC_PATH, 'rb') as fp:
+        doc = pickle.load(fp)
+
+    dictionary.update(doc)
+    logging.info("after generate dictionary")
+    corpus = dictionary.corpus(doc)
+    vocab_size = dictionary.vocab_size
+
+    # end preprocess
+
+    # begin train
+
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+    # init vector model
+    logging.info("init model hyperparameter")
+    model = GloVeModel(EMBEDDING_SIZE, CONTEXT_SIZE, vocab_size)
+    model.to(device)
+
+    # fit corpus to count cooccurance matrix
+    model.fit(corpus)
+
+    cooccurance_matrix = model.get_coocurrance_matrix()
+    # saving cooccurance_matrix
+    with open(COMATRIX_PATH, mode='wb') as fp:
+        pickle.dump(cooccurance_matrix, fp)
+
+    model.train(NUM_EPOCH, device, learning_rate=LEARNING_RATE)
+
+    # save model for evaluation
+    torch.save(model.state_dict(), MODLE_PATH)
+
+    # end train
+
+    # begin evaluation
+
+    vocabulary = list(dictionary.word2idx.items())
+    embeddings = {}
+    for word, idx in vocabulary:
+        embeddings[word] = model.embedding_for_tensor(torch.tensor([idx])).numpy()
+    embeddings = Embedding.from_dict(embeddings)
+
+    google = fetch_google_analogy()
+    result = evaluate_analogy(embeddings, google.X, google.y)
+    with open('resultado.txt', 'w') as writer:
+        writer.write(f'{result}\n')  
 
 
 if __name__ == '__main__':

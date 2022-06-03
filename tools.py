@@ -83,3 +83,6 @@ if __name__ == '__main__':
     text = "This is an apple. \n This is a tea."
     doc = tokenizer.tokenize(text)
     print(doc)
+
+    d = Dictionary(doc=doc)
+    print(d.word2idx.keys())
