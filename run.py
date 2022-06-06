@@ -166,7 +166,8 @@ def train_glove_model2():
     embeddings = {}
     print("holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     for word, idx in vocabulary:
-        embeddings[word] = model.embedding_for_tensor(torch.tensor([idx])).numpy()
+        tidx = torch.tensor([idx]).to(device)
+        embeddings[word] = model.embedding_for_tensor(tidx).numpy()
     embeddings = Embedding.from_dict(embeddings)
     print("chaaaaaaaaaaaaaaaaaaaaaaaaaao")
     google = fetch_google_analogy()
