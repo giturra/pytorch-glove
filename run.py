@@ -110,7 +110,7 @@ def train_glove_model2():
     # begin preprocess
 
     # preprocess read raw text
-    text = read_data(FILE_PATH, type='zip')
+    text = "This is an apple. \n This is a tea."
     logging.info("read raw data")
 
     # init base model
@@ -138,7 +138,7 @@ def train_glove_model2():
 
     # begin train
 
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda:0')
 
     # init vector model
     logging.info("init model hyperparameter")
@@ -175,4 +175,4 @@ def train_glove_model2():
 
 
 if __name__ == '__main__':
-    train_glove_model()
+    train_glove_model2()
