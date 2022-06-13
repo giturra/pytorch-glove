@@ -110,7 +110,7 @@ def train_glove_model2():
     # begin preprocess
 
     # preprocess read raw text
-    text = "This is an apple. \n This is a tea."
+    text = read_data(FILE_PATH, type='zip')
     logging.info("read raw data")
 
     # init base model
@@ -138,7 +138,7 @@ def train_glove_model2():
 
     # begin train
 
-    device = torch.device('cuda:1')
+    device = torch.device('cpu')
 
     # init vector model
     logging.info("init model hyperparameter")
@@ -164,12 +164,10 @@ def train_glove_model2():
 
     vocabulary = list(dictionary.word2idx.items())
     embeddings = {}
-    print("holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     for word, idx in vocabulary:
         tidx = torch.tensor([idx]).to(device)
-        embeddings[word] = model.embedding_for_tensor(tidx).numpy()
+        embeddings[word] = model.embedding_for_tensor(tidx).detach().cpu().numpy()[0]
     embeddings = Embedding.from_dict(embeddings)
-    print("chaaaaaaaaaaaaaaaaaaaaaaaaaao")
     google = fetch_google_analogy()
     result = evaluate_analogy(embeddings, google.X, google.y)
     with open('resultado.txt', 'w') as writer:

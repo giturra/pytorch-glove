@@ -5,6 +5,7 @@ import torch.nn.init as init
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
 
+from pprint import pprint
 
 class GloVeModel(nn.Module):
     """Implement GloVe model with Pytorch
@@ -49,7 +50,6 @@ class GloVeModel(nn.Module):
 
         left_size, right_size = self.left_context, self.right_context
         vocab_size, min_occurrance = self.vocab_size, self.min_occurrance
-
         # get co-occurence count matrix
         word_counts = Counter()
         cooccurence_counts = defaultdict(float)
@@ -107,11 +107,11 @@ class GloVeModel(nn.Module):
                 loss = self._loss(i_s, j_s, counts)
 
                 total_loss += loss.item()
-                if idx % loop_interval == 0:
-                    avg_loss = total_loss / loop_interval
-                    print("epoch: {}, current step: {}, average loss: {}".format(
-                        epoch, idx, avg_loss))
-                    total_loss = 0
+                # if idx % loop_interval == 0:
+                #     avg_loss = total_loss / loop_interval
+                #     print("epoch: {}, current step: {}, average loss: {}".format(
+                #         epoch, idx, avg_loss))
+                #     total_loss = 0
 
                 loss.backward()
                 optimizer.step()
