@@ -127,7 +127,7 @@ class GloVeModel(nn.Module):
             embeddings = {}
             for word, idx in vocab:
                 tidx = torch.tensor([idx])
-                tidx.to('cpu')
+                tidx.to(device)
                 vector = self.embedding_for_tensor(tidx).detach().clone().cpu().numpy()[0]
                 embeddings[word] = vector
             
