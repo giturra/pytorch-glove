@@ -149,7 +149,7 @@ class GloVeModel(nn.Module):
         log_cooccurrences = torch.log(coocurrence_count)
 
         distance_expr = (embedding_products + focal_bias +
-                         context_bias + log_cooccurrences) ** 2
+                         context_bias - log_cooccurrences) ** 2
 
         single_losses = weight_factor * distance_expr
         mean_loss = torch.mean(single_losses)
