@@ -5,13 +5,16 @@ import torch.nn.init as init
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
 
+from web.datasets.similarity import fetch_MEN
+from web.evaluate import evaluate_similarity
+
 from pprint import pprint
 
 class GloVeModel(nn.Module):
     """Implement GloVe model with Pytorch
     """
 
-    def __init__(self, embedding_size, context_size, vocab_size, min_occurrance=1, x_max=100, alpha=3 / 4):
+    def __init__(self, embedding_size, context_size, vocab_size, min_occurrance=1, x_max=100, alpha=3 / 4, vocab=None):
         super(GloVeModel, self).__init__()
 
         self.embedding_size = embedding_size
@@ -37,6 +40,8 @@ class GloVeModel(nn.Module):
 
         for params in self.parameters():
             init.uniform_(params, a=-1, b=1)
+        
+        self.vocab = vocab
 
     def fit(self, corpus):
         """get dictionary word list and co-occruence matrix from corpus
@@ -90,6 +95,8 @@ class GloVeModel(nn.Module):
         if self._glove_dataset is None:
             raise NotFitToCorpusError(
                 "Please fit model with corpus before training")
+        
+        men = fetch_MEN()
 
         # basic training setting
         optimizer = optim.Adam(self.parameters(), lr=learning_rate)
@@ -115,6 +122,16 @@ class GloVeModel(nn.Module):
 
                 loss.backward()
                 optimizer.step()
+            
+            vocab = list(self.vocab.word2idx.items())
+            embeddings = {}
+            for word, idx in vocab:
+                tidx = torch.tensor([idx])
+                tidx.to('cpu')
+                vector = self.embedding_for_tensor(tidx).detach().clone().cpu().numpy()[0]
+                embeddings[word] = vector
+            
+            print(evaluate_similarity(embeddings, men.X, men.y))
 
         print("finish glove vector training")
 

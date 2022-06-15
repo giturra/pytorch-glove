@@ -31,10 +31,10 @@ def read_data(file_path, type='file'):
         file_path (str): path for the data file
     """
     text = None
-    if type is 'file':
+    if type == 'file':
         with open(file_path, mode='r', encoding='utf-8') as fp:
             text = fp.read()
-    elif type is 'zip':
+    elif type == 'zip':
         with zipfile.ZipFile(file_path) as fp:
             text = fp.read(fp.namelist()[0]).decode()
     return text
@@ -110,7 +110,7 @@ def train_glove_model2():
     # begin preprocess
 
     # preprocess read raw text
-    text = read_data(FILE_PATH, type='zip')
+    text = "This is an apple. \n This is a tea."
     logging.info("read raw data")
 
     # init base model
@@ -142,7 +142,7 @@ def train_glove_model2():
 
     # init vector model
     logging.info("init model hyperparameter")
-    model = GloVeModel(EMBEDDING_SIZE, CONTEXT_SIZE, vocab_size)
+    model = GloVeModel(EMBEDDING_SIZE, CONTEXT_SIZE, vocab_size, vocab=dictionary)
     model.to(device)
 
     # fit corpus to count cooccurance matrix
@@ -162,16 +162,16 @@ def train_glove_model2():
 
     # begin evaluation
 
-    vocabulary = list(dictionary.word2idx.items())
-    embeddings = {}
-    for word, idx in vocabulary:
-        tidx = torch.tensor([idx]).to(device)
-        embeddings[word] = model.embedding_for_tensor(tidx).detach().cpu().numpy()[0]
-    embeddings = Embedding.from_dict(embeddings)
-    google = fetch_google_analogy()
-    result = evaluate_analogy(embeddings, google.X, google.y)
-    with open('resultado.txt', 'w') as writer:
-        writer.write(f'{result}\n')  
+    # vocabulary = list(dictionary.word2idx.items())
+    # embeddings = {}
+    # for word, idx in vocabulary:
+    #     tidx = torch.tensor([idx]).to(device)
+    #     embeddings[word] = model.embedding_for_tensor(tidx).detach().cpu().numpy()[0]
+    # embeddings = Embedding.from_dict(embeddings)
+    # google = fetch_google_analogy()
+    # result = evaluate_analogy(embeddings, google.X, google.y)
+    # with open('resultado.txt', 'w') as writer:
+    #     writer.write(f'{result}\n')  
 
 
 if __name__ == '__main__':
